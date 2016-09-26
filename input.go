@@ -70,7 +70,7 @@ func handleInput(input string) {
 				}
 
 				messagesList.AddMessage("IRC", "Connected to server")
-				ircConn.SubscribeForMessages(&msgCh)
+				go ircConn.SubscribeForMessages(&msgCh)
 				buffer.Clear()
 			} else if ircConn == (irc.Client{}) {
 				messagesList.AddMessage("Error", "You must connect to a server first")
