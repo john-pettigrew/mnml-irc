@@ -55,5 +55,6 @@ func initializeView() error {
 
 func renderScreen() {
 
+	textInput.Text = inputPrefix + buffer.Contents
 	ui.Render(ui.Body)
 }
