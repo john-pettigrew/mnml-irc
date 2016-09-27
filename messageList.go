@@ -12,11 +12,6 @@ type MessageList struct {
 	Messages []string
 }
 
-func (m *MessageList) AddMessage(speaker, newMessage string) {
-	m.Messages = append(m.Messages, speaker+"\t\t\t"+newMessage)
-	m.SetMessageItems()
-}
-
 func (m *MessageList) ListenForMessages(msgCh chan message.Message) {
 	// m.Items = append(m.Items, speaker+"\t\t\t"+newMessage)
 	var newMsg message.Message
