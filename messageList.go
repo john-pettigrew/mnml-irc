@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	ui "github.com/gizak/termui"
 	"github.com/john-pettigrew/irc/message"
 )
@@ -24,18 +26,45 @@ func (m *MessageList) ListenForMessages(msgCh chan message.Message) {
 		if !open {
 			break
 		}
-		m.Messages = append(m.Messages, message.Marshal(newMsg))
+
+		msgStr := message.Marshal(newMsg)
+
+		//remove extra characters
+		msgStr = strings.Replace(msgStr, "\n", "", -1)
+		msgStr = strings.Replace(msgStr, "\r", "", -1)
+
+		m.Messages = append(m.Messages, msgStr)
 		m.setMessageItems()
 	}
 }
 
 func (m *MessageList) setMessageItems() {
-	start := len(m.Messages) - 7
-	if start < 0 {
-		start = 0
+
+	//calculate how many messages can fit
+	var currentMessages []string
+	availableHeight := m.InnerHeight()
+	availableWidth := m.Width
+
+	for i := len(m.Messages) - 1; i >= 0; i-- {
+		availableHeight -= len(m.Messages[i]) / availableWidth
+		if len(m.Messages[i])%availableWidth > 0 {
+			availableHeight -= 1
+		}
+
+		if availableHeight < 1 {
+			break
+		}
+
+		currentMessages = append(currentMessages, m.Messages[i])
 	}
 
-	m.Items = m.Messages[start:]
+	//reverse message order
+	var reversedMessages []string
+	for i := len(currentMessages) - 1; i >= 0; i-- {
+		reversedMessages = append(reversedMessages, currentMessages[i])
+	}
+
+	m.Items = reversedMessages
 	renderScreen()
 }
 
