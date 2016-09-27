@@ -14,7 +14,7 @@ type MessageList struct {
 
 func (m *MessageList) AddMessage(speaker, newMessage string) {
 	m.Messages = append(m.Messages, speaker+"\t\t\t"+newMessage)
-	m.setMessageItems()
+	m.SetMessageItems()
 }
 
 func (m *MessageList) ListenForMessages(msgCh chan message.Message) {
@@ -34,11 +34,15 @@ func (m *MessageList) ListenForMessages(msgCh chan message.Message) {
 		msgStr = strings.Replace(msgStr, "\r", "", -1)
 
 		m.Messages = append(m.Messages, msgStr)
-		m.setMessageItems()
+		renderScreen()
 	}
 }
 
-func (m *MessageList) setMessageItems() {
+func (m *MessageList) SetMessageItems() {
+
+	if len(m.Messages) == 0 {
+		return
+	}
 
 	//calculate how many messages can fit
 	var currentMessages []string
@@ -65,7 +69,6 @@ func (m *MessageList) setMessageItems() {
 	}
 
 	m.Items = reversedMessages
-	renderScreen()
 }
 
 func (m *MessageList) ListMove(y int) {

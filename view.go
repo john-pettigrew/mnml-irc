@@ -55,6 +55,7 @@ func initializeView() error {
 
 func renderScreen() {
 
+	messagesList.SetMessageItems()
 	textInput.Text = inputPrefix + buffer.Contents
 	ui.Render(ui.Body)
 }
