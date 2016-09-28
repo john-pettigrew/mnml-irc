@@ -42,12 +42,12 @@ func handleInput(input string) {
 
 	//up
 	if bytes.Equal([]byte(input)[:3], []byte{27, 79, 65}) {
-		messagesList.ListMove(-1)
+		messagesList.ListMove(1)
 		return
 	}
 	//down
 	if bytes.Equal([]byte(input)[:3], []byte{27, 79, 66}) {
-		messagesList.ListMove(1)
+		messagesList.ListMove(-1)
 		return
 	}
 

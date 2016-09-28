@@ -9,7 +9,8 @@ import (
 
 type MessageList struct {
 	ui.List
-	Messages []string
+	Messages      []string
+	MessageOffset int
 }
 
 func (m *MessageList) ListenForMessages(msgCh chan message.Message) {
@@ -44,7 +45,7 @@ func (m *MessageList) SetMessageItems() {
 	availableHeight := m.InnerHeight()
 	availableWidth := m.Width
 
-	for i := len(m.Messages) - 1; i >= 0; i-- {
+	for i := len(m.Messages) - m.MessageOffset - 1; i >= 0; i-- {
 		availableHeight -= len(m.Messages[i]) / availableWidth
 		if len(m.Messages[i])%availableWidth > 0 {
 			availableHeight -= 1
@@ -67,5 +68,9 @@ func (m *MessageList) SetMessageItems() {
 }
 
 func (m *MessageList) ListMove(y int) {
-	m.SetY(m.Y + y)
+	if m.MessageOffset+y < 0 || m.MessageOffset+y > len(m.Messages)-1 {
+		return
+	}
+	m.MessageOffset += y
+	renderScreen()
 }
