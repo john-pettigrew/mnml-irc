@@ -42,12 +42,13 @@ func handleInput(input string) {
 
 	//up
 	if bytes.Equal([]byte(input)[:3], []byte{27, 79, 65}) {
-		messagesList.ListMove(1)
+
+		serverList.CurrentChannel().ListMove(1)
 		return
 	}
 	//down
 	if bytes.Equal([]byte(input)[:3], []byte{27, 79, 66}) {
-		messagesList.ListMove(-1)
+		serverList.CurrentChannel().ListMove(-1)
 		return
 	}
 
@@ -67,35 +68,27 @@ func handleInput(input string) {
 				return
 			} else if len(buffer.Contents) >= 8 && buffer.Contents[:8] == "/connect" {
 
-				msgCh <- message.Message{Command: "IRC", Options: []string{"Connecting to host..."}}
-				ircConn, err = irc.NewClient(buffer.Contents[9:])
-				if err != nil {
+				// Connect to server
+				serverList.Connect(buffer.Contents[9:])
 
-					msgCh <- message.Message{Command: "Error", Options: []string{"Error connecting to host: " + err.Error()}}
-					buffer.Clear()
-					break
-				}
-
-				msgCh <- message.Message{Command: "IRC", Options: []string{"Connected to server"}}
-				go ircConn.SubscribeForMessages(&msgCh)
 				buffer.Clear()
 			} else if ircConn == (irc.Client{}) {
-				msgCh <- message.Message{Command: "Error", Options: []string{"You must connect to a server first"}}
+				serverList.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
 				buffer.Clear()
 			} else {
 				msg, err := message.ParseCommand(buffer.Contents)
 				if err != nil {
-					msgCh <- message.Message{Command: "Error", Options: []string{"Error parsing message: " + err.Error()}}
+					serverList.AddMessage(message.Message{Command: "Error", Options: []string{"Error parsing message: " + err.Error()}})
 					break
 				}
 				err = ircConn.SendMessage(msg)
 				if err != nil {
-					msgCh <- message.Message{Command: "Error", Options: []string{"Error sending message: " + err.Error()}}
+					serverList.AddMessage(message.Message{Command: "Error", Options: []string{"Error sending message: " + err.Error()}})
 					break
 
 				}
-				msgCh <- msg
 
+				serverList.AddMessage(msg)
 				buffer.Clear()
 			}
 		} else {

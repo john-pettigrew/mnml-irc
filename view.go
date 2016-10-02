@@ -1,11 +1,9 @@
 package main
 
-import (
-	ui "github.com/gizak/termui"
-)
+import ui "github.com/gizak/termui"
 
-var messagesList *MessageList
 var textInput *ui.Par
+var messagesList *ui.List
 
 func initializeView() error {
 	err := ui.Init()
@@ -13,7 +11,8 @@ func initializeView() error {
 		return err
 	}
 
-	messagesList = &MessageList{}
+	messagesList = ui.NewList()
+
 	messagesList.Height = ((ui.TermHeight() * 9) / 10) - 3
 	messagesList.Overflow = "wrap"
 	messagesList.Border = false
@@ -21,7 +20,6 @@ func initializeView() error {
 	messagesList.PaddingBottom = 0
 	messagesList.PaddingLeft = 3
 	messagesList.PaddingRight = 3
-	go messagesList.ListenForMessages(msgCh)
 
 	textInput = ui.NewPar(inputPrefix + buffer.Contents)
 	textInput.Height = ui.TermHeight() - messagesList.Height + 3
@@ -55,7 +53,11 @@ func initializeView() error {
 
 func renderScreen() {
 
-	messagesList.SetMessageItems()
 	textInput.Text = inputPrefix + buffer.Contents
+	channel := serverList.CurrentChannel()
+	channel.SetMessageItems(messagesList.InnerHeight(), messagesList.Width)
+
+	messagesList.Items = channel.VisibleMessages
+
 	ui.Render(ui.Body)
 }

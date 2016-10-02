@@ -1,17 +1,15 @@
 package main
 
-import (
-	ui "github.com/gizak/termui"
-	"github.com/john-pettigrew/irc/message"
-)
+import ui "github.com/gizak/termui"
 
 var err error
-var msgCh = make(chan message.Message)
 var inputPrefix = "> "
 var buffer *InputBuffer
+var serverList *ServerList
 
 func main() {
 
+	serverList = NewServerList()
 	buffer = new(InputBuffer)
 
 	err = initializeView()
