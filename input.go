@@ -5,9 +5,7 @@ import (
 	"os"
 	"time"
 
-	ui "github.com/gizak/termui"
 	"github.com/john-pettigrew/irc"
-	"github.com/john-pettigrew/irc/message"
 )
 
 var ircConn irc.Client
@@ -59,38 +57,9 @@ func handleInput(input string) {
 		if r == '\r' {
 			//handle buffer
 
-			if buffer.Contents == "" {
-				return
-			}
+			serverList.HandleInput(buffer.Contents)
+			buffer.Clear()
 
-			if buffer.Contents == "/quit" {
-				ui.StopLoop()
-				return
-			} else if len(buffer.Contents) >= 8 && buffer.Contents[:8] == "/connect" {
-
-				// Connect to server
-				serverList.Connect(buffer.Contents[9:])
-
-				buffer.Clear()
-			} else if ircConn == (irc.Client{}) {
-				serverList.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
-				buffer.Clear()
-			} else {
-				msg, err := message.ParseCommand(buffer.Contents)
-				if err != nil {
-					serverList.AddMessage(message.Message{Command: "Error", Options: []string{"Error parsing message: " + err.Error()}})
-					break
-				}
-				err = ircConn.SendMessage(msg)
-				if err != nil {
-					serverList.AddMessage(message.Message{Command: "Error", Options: []string{"Error sending message: " + err.Error()}})
-					break
-
-				}
-
-				serverList.AddMessage(msg)
-				buffer.Clear()
-			}
 		} else {
 			buffer.Type(r)
 		}

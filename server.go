@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	"github.com/john-pettigrew/irc"
 	"github.com/john-pettigrew/irc/message"
 )
 
@@ -11,11 +12,12 @@ type Server struct {
 	CurrentChannelIndex int
 	MsgCh               chan message.Message
 	Closable            bool
+	IrcConn             *irc.Client
 }
 
 func NewServer(msgCh chan message.Message, closable bool) *Server {
 	newServer := Server{MsgCh: msgCh, Closable: closable}
-	newServer.Channels = []*Channel{NewChannel(false)}
+	newServer.Channels = []*Channel{NewChannel("", false)}
 	return &newServer
 }
 
@@ -67,4 +69,13 @@ func (s *Server) SetChannel(newChannel int) bool {
 
 func (s *Server) CurrentChannel() *Channel {
 	return s.Channels[s.CurrentChannelIndex]
+}
+
+func (s *Server) Join(channelName string) {
+	s.Channels = append(s.Channels, NewChannel(channelName, true))
+	s.CurrentChannelIndex = len(s.Channels) - 1
+}
+
+func (s *Server) SendMessage(msg message.Message) error {
+	return s.IrcConn.SendMessage(msg)
 }

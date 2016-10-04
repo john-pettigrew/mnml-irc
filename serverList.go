@@ -1,6 +1,7 @@
 package main
 
 import (
+	ui "github.com/gizak/termui"
 	"github.com/john-pettigrew/irc"
 	"github.com/john-pettigrew/irc/message"
 )
@@ -53,8 +54,14 @@ func (s *ServerList) Connect(serverURL string) {
 		msgCh <- message.Message{Command: "Error", Options: []string{"Error connecting to host: " + err.Error()}}
 	}
 
+	newServer.IrcConn = &ircConn
+
 	msgCh <- message.Message{Command: "IRC", Options: []string{"Connected to server"}}
 	go ircConn.SubscribeForMessages(&msgCh)
+}
+
+func (s *ServerList) Join(channelName string) {
+	s.Servers[s.CurrentServerIndex].Join(channelName)
 }
 
 func (s ServerList) CurrentChannel() *Channel {
@@ -63,4 +70,43 @@ func (s ServerList) CurrentChannel() *Channel {
 
 func (s *ServerList) AddMessage(m message.Message) {
 	s.Servers[s.CurrentServerIndex].MsgCh <- m
+}
+
+func (s *ServerList) HandleInput(input string) {
+	if input == "" {
+		return
+	}
+
+	msg, err := message.ParseCommand(input)
+	if err != nil {
+		s.AddMessage(message.Message{Command: "Error", Options: []string{"Error parsing message: " + err.Error()}})
+		return
+	}
+
+	if msg.Command == "QUIT" {
+		ui.StopLoop()
+		return
+	} else if msg.Command == "CONNECT" {
+
+		// Connect to server
+		s.Connect(msg.Options[0])
+
+	} else if *s.Servers[s.CurrentServerIndex].IrcConn == (irc.Client{}) {
+		s.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
+	} else {
+
+		if msg.Command == "JOIN" {
+			// Join Channel
+			s.Servers[s.CurrentServerIndex].Join(msg.Options[0])
+		}
+
+		err = s.Servers[s.CurrentServerIndex].SendMessage(msg)
+		if err != nil {
+			s.AddMessage(message.Message{Command: "Error", Options: []string{"Error sending message: " + err.Error()}})
+			return
+
+		}
+
+		s.AddMessage(msg)
+	}
 }

@@ -3,11 +3,12 @@ package main
 type Channel struct {
 	Messages        []string
 	VisibleMessages []string
+	Name            string
 	MessageOffset   int
 	Closable        bool
 }
 
-func NewChannel(closable bool) *Channel {
+func NewChannel(name string, closable bool) *Channel {
 	newChannel := Channel{Closable: closable}
 	return &newChannel
 }
