@@ -83,17 +83,18 @@ func (s *ServerList) HandleInput(input string) {
 		return
 	}
 
-	if msg.Command == "QUIT" {
+	switch msg.Command {
+	case "QUIT":
 		ui.StopLoop()
 		return
-	} else if msg.Command == "CONNECT" {
-
+	case "CONNECT":
 		// Connect to server
 		s.Connect(msg.Options[0])
-
-	} else if *s.Servers[s.CurrentServerIndex].IrcConn == (irc.Client{}) {
-		s.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
-	} else {
+	default:
+		if *s.Servers[s.CurrentServerIndex].IrcConn == (irc.Client{}) {
+			s.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
+			return
+		}
 
 		if msg.Command == "JOIN" {
 			// Join Channel
@@ -104,7 +105,6 @@ func (s *ServerList) HandleInput(input string) {
 		if err != nil {
 			s.AddMessage(message.Message{Command: "Error", Options: []string{"Error sending message: " + err.Error()}})
 			return
-
 		}
 
 		s.AddMessage(msg)
