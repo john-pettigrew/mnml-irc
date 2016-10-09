@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"strings"
 
 	"github.com/john-pettigrew/irc"
@@ -18,6 +19,7 @@ type Server struct {
 func NewServer(msgCh chan message.Message, closable bool) *Server {
 	newServer := Server{MsgCh: msgCh, Closable: closable}
 	newServer.Channels = []*Channel{NewChannel("", false)}
+	go newServer.ListenForMessages()
 	return &newServer
 }
 
@@ -77,5 +79,8 @@ func (s *Server) Join(channelName string) {
 }
 
 func (s *Server) SendMessage(msg message.Message) error {
+	if s.IrcConn == nil {
+		return errors.New("Error: Not connected to server.")
+	}
 	return s.IrcConn.SendMessage(msg)
 }

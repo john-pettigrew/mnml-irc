@@ -109,7 +109,7 @@ func (s *ServerList) HandleInput(input string) {
 		// Connect to server
 		s.Connect(msg.Options[0])
 	default:
-		if *s.Servers[s.CurrentServerIndex].IrcConn == (irc.Client{}) {
+		if s.Servers[s.CurrentServerIndex].IrcConn == nil {
 			s.AddMessage(message.Message{Command: "Error", Options: []string{"You must connect to a server first"}})
 			return
 		}
