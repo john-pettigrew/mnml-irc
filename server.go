@@ -14,10 +14,11 @@ type Server struct {
 	MsgCh               chan message.Message
 	Closable            bool
 	IrcConn             *irc.Client
+	Name                string
 }
 
-func NewServer(msgCh chan message.Message, closable bool) *Server {
-	newServer := Server{MsgCh: msgCh, Closable: closable}
+func NewServer(msgCh chan message.Message, name string, closable bool) *Server {
+	newServer := Server{MsgCh: msgCh, Name: name, Closable: closable}
 	newServer.Channels = []*Channel{NewChannel("", false)}
 	go newServer.ListenForMessages()
 	return &newServer

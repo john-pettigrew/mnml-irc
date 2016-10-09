@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strings"
+
 	ui "github.com/gizak/termui"
 	"github.com/john-pettigrew/irc"
 	"github.com/john-pettigrew/irc/message"
@@ -14,7 +16,7 @@ type ServerList struct {
 func NewServerList() *ServerList {
 	newMsgCh := make(chan message.Message)
 	newServerList := ServerList{}
-	newServerList.Servers = []*Server{NewServer(newMsgCh, false)}
+	newServerList.Servers = []*Server{NewServer(newMsgCh, "mnmlIRC", false)}
 	return &newServerList
 }
 
@@ -58,7 +60,7 @@ func (s *ServerList) Connect(serverURL string) {
 
 	// Add new server with base channel
 	msgCh := make(chan message.Message)
-	newServer := NewServer(msgCh, false)
+	newServer := NewServer(msgCh, strings.Split(serverURL, ":")[0], false)
 	go newServer.ListenForMessages()
 
 	// Switch to new server
@@ -84,6 +86,10 @@ func (s *ServerList) Join(channelName string) {
 
 func (s ServerList) CurrentChannel() *Channel {
 	return s.Servers[s.CurrentServerIndex].CurrentChannel()
+}
+
+func (s ServerList) CurrentServer() *Server {
+	return s.Servers[s.CurrentServerIndex]
 }
 
 func (s *ServerList) AddMessage(m message.Message) {

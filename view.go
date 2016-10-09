@@ -51,9 +51,13 @@ func initializeView() error {
 	return nil
 }
 
+func getPrompt() string {
+	return serverList.CurrentServer().Name + "/" + serverList.CurrentChannel().Name + inputPrefix
+}
+
 func renderScreen() {
 
-	textInput.Text = inputPrefix + buffer.Contents
+	textInput.Text = getPrompt() + buffer.Contents
 	channel := serverList.CurrentChannel()
 	channel.SetMessageItems(messagesList.InnerHeight(), messagesList.Width)
 
