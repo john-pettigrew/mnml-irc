@@ -18,14 +18,32 @@ func NewServerList() *ServerList {
 	return &newServerList
 }
 
+func (s *ServerList) PrevWindow() {
+	if len(s.Servers) == 0 {
+		return
+	}
+	//First attempt to go to prev channel in current server.
+	if !s.Servers[s.CurrentServerIndex].PrevChannel() {
+		//Next try to go to last channel of prev server.
+		if s.CurrentServerIndex-1 < 0 {
+			s.CurrentServerIndex = len(s.Servers) - 1
+		} else {
+			s.CurrentServerIndex -= 1
+		}
+
+		//set correct channel in server
+		s.Servers[s.CurrentServerIndex].SetChannel(len(s.Servers[s.CurrentServerIndex].Channels) - 1)
+	}
+}
+
 func (s *ServerList) NextWindow() {
+	if len(s.Servers) == 0 {
+		return
+	}
 	//First attempt to go to next channel in current server.
 	if !s.Servers[s.CurrentServerIndex].NextChannel() {
 		//Next try to go to first channel of next server.
 		if s.CurrentServerIndex+1 > len(s.Servers)-1 {
-			if len(s.Servers) == 0 {
-				return
-			}
 			s.CurrentServerIndex = 0
 		} else {
 			s.CurrentServerIndex += 1

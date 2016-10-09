@@ -50,6 +50,22 @@ func handleInput(input string) {
 		return
 	}
 
+	//Check for tab changes
+
+	// Control-H
+	if bytes.Equal([]byte(input)[:3], []byte{8, 0, 0}) {
+		serverList.PrevWindow()
+		renderScreen()
+		return
+	}
+
+	// Control-L
+	if bytes.Equal([]byte(input)[:3], []byte{12, 0, 0}) {
+		serverList.NextWindow()
+		renderScreen()
+		return
+	}
+
 	for _, r := range input {
 		if r == rune(0) {
 			continue
