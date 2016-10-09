@@ -1,6 +1,9 @@
 package main
 
-import ui "github.com/gizak/termui"
+import (
+	ui "github.com/gizak/termui"
+	"github.com/john-pettigrew/irc/message"
+)
 
 var err error
 var inputPrefix = "> "
@@ -21,6 +24,10 @@ func main() {
 
 	//Handle input
 	go listenForInput()
+
+	//add welcome message
+	serverList.AddMessage(message.Message{Command: "IRC", Options: []string{"Welcome to mnmlIRC!"}})
+	renderScreen()
 
 	ui.Loop()
 }
