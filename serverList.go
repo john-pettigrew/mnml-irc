@@ -101,6 +101,11 @@ func (s *ServerList) HandleInput(input string) {
 		return
 	}
 
+	//default PRIVMSG to current channel
+	if input[0] != '/' {
+		input = "/PRIVMSG " + serverList.CurrentChannel().Name + " " + input
+	}
+
 	msg, err := message.ParseCommand(input)
 	if err != nil {
 		s.AddMessage(message.Message{Command: "Error", Options: []string{"Error parsing message: " + err.Error()}})
