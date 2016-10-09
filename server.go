@@ -37,7 +37,19 @@ func (s *Server) ListenForMessages() {
 		//remove extra characters
 		msgStr = strings.Replace(msgStr, "\n", "", -1)
 		msgStr = strings.Replace(msgStr, "\r", "", -1)
-		s.Channels[s.CurrentChannelIndex].Messages = append(s.Channels[s.CurrentChannelIndex].Messages, msgStr)
+
+		//send to correct channel(s)
+		sendToAll := true
+		if newMsg.Options[0][0] == '#' {
+			//send to a certain channel
+			sendToAll = false
+		}
+		for i := 0; i < len(s.Channels); i++ {
+			if sendToAll || s.Channels[i].Name == newMsg.Options[0] {
+				s.Channels[i].Messages = append(s.Channels[i].Messages, msgStr)
+			}
+		}
+
 		renderScreen()
 	}
 }

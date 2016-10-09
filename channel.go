@@ -9,7 +9,7 @@ type Channel struct {
 }
 
 func NewChannel(name string, closable bool) *Channel {
-	newChannel := Channel{Closable: closable}
+	newChannel := Channel{Closable: closable, Name: name}
 	return &newChannel
 }
 
